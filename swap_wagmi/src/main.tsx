@@ -6,6 +6,7 @@ import { WagmiProvider } from 'wagmi'
 import { RainbowKitProvider } from '@rainbow-me/rainbowkit';
 import App from './App.tsx'
 import { config } from './wagmi.ts'
+import '@rainbow-me/rainbowkit/styles.css';
 
 import './index.css'
 
