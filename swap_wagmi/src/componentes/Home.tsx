@@ -2,9 +2,9 @@
 import React from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useReadContract } from 'wagmi';
-import  simpleDexABI  from "../contratos/simpleDexABI.json";
-import  tokenAABI from '../contratos/erc20ABI/tokenAABI.json';
-import  tokenBABI from '../contratos/erc20ABI/tokenBABI.json';
+import simpleDexABI from "../contratos/simpleDexABI.json";
+import tokenAABI from '../contratos/erc20ABI/tokenAABI.json';
+import tokenBABI from '../contratos/erc20ABI/tokenBABI.json';
 
 // Direcciones de los contratos (debes definirlas en un archivo de configuración)
 const SIMPLE_DEX_ADDRESS = '0x3D5B5a5328a0f29375b3cDcBE31B1aB5c2AB906A';
@@ -15,10 +15,10 @@ const Home: React.FC = () => {
   const { isConnected, address } = useAccount();
 
   // Hook para leer reserveA del contrato SimpleDEX
-  const { 
-    data: reserveA, 
+  const {
+    data: reserveA,
     isLoading: loadingReserveA,
-    error: errorReserveA 
+    error: errorReserveA
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -26,10 +26,10 @@ const Home: React.FC = () => {
   });
 
   // Hook para leer reserveB del contrato SimpleDEX
-  const { 
-    data: reserveB, 
+  const {
+    data: reserveB,
     isLoading: loadingReserveB,
-    error: errorReserveB 
+    error: errorReserveB
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -37,10 +37,10 @@ const Home: React.FC = () => {
   });
 
   // Hook para leer balance de TokenA del usuario
-  const { 
-    data: balanceTokenA, 
+  const {
+    data: balanceTokenA,
     isLoading: loadingBalanceA,
-    error: errorBalanceA 
+    error: errorBalanceA
   } = useReadContract({
     address: TOKEN_A_ADDRESS,
     abi: tokenAABI,
@@ -52,10 +52,10 @@ const Home: React.FC = () => {
   });
 
   // Hook para leer balance de TokenB del usuario
-  const { 
-    data: balanceTokenB, 
+  const {
+    data: balanceTokenB,
     isLoading: loadingBalanceB,
-    error: errorBalanceB 
+    error: errorBalanceB
   } = useReadContract({
     address: TOKEN_B_ADDRESS,
     abi: tokenBABI,
@@ -67,10 +67,10 @@ const Home: React.FC = () => {
   });
 
   // Hook para leer precio de TokenA
-  const { 
-    data: priceTokenA, 
+  const {
+    data: priceTokenA,
     isLoading: loadingPriceA,
-    error: errorPriceA 
+    error: errorPriceA
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -79,10 +79,10 @@ const Home: React.FC = () => {
   });
 
   // Hook para leer precio de TokenB
-  const { 
-    data: priceTokenB, 
+  const {
+    data: priceTokenB,
     isLoading: loadingPriceB,
-    error: errorPriceB 
+    error: errorPriceB
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -93,9 +93,16 @@ const Home: React.FC = () => {
   // Función para formatear grandes números (para mostrar en UI)
   const formatBalance = (balance: bigint | undefined, decimals: number = 18) => {
     if (!balance) return '0.0';
-    return (Number(balance) / 10 ** decimals).toFixed(4);
-  };
 
+    const balanceStr = balance.toString().padStart(decimals + 1, '0'); // Asegurar longitud mínima
+    const wholePart = balanceStr.slice(0, -decimals) || '0';
+    const fractionalPart = balanceStr.slice(-decimals).slice(0, 4);
+
+    // Remover ceros innecesarios
+    const cleanWhole = wholePart.replace(/^0+/, '') || '0';
+
+    return `${cleanWhole}.${fractionalPart}`;
+  };
   // Calcular tasa de cambio basada en las reservas
   const calculateExchangeRate = () => {
     if (!reserveA || !reserveB || reserveA === 0n) return '0.0';
@@ -121,13 +128,13 @@ const Home: React.FC = () => {
                 <div className="flex justify-between">
                   <span>Reserva TokenA:</span>
                   <span>
-                    {loadingReserveA ? 'Cargando...' : formatBalance(reserveA)}
+                    {loadingReserveA ? 'Cargando...' : reserveA?.toString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Reserva TokenB:</span>
                   <span>
-                    {loadingReserveB ? 'Cargando...' : formatBalance(reserveB)}
+                    {loadingReserveB ? 'Cargando...' : reserveB?.toString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -162,7 +169,7 @@ const Home: React.FC = () => {
           {/* Sección de conexión */}
           <div className="space-y-4">
             <ConnectButton />
-            
+
             {isConnected && (
               <div className="text-center p-3 bg-gray-700 rounded-lg">
                 <p className="text-sm text-gray-300">Conectado como:</p>
@@ -186,8 +193,8 @@ const Home: React.FC = () => {
         {/* Footer Info */}
         <div className="text-center mt-6 text-gray-500 text-sm">
           <p>
-            {isConnected 
-              ? '¡Listo! Ya puedes realizar swaps' 
+            {isConnected
+              ? '¡Listo! Ya puedes realizar swaps'
               : 'Conecta tu wallet para comenzar a hacer swaps'
             }
           </p>

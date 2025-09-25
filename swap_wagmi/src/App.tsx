@@ -8,7 +8,10 @@ function App() {
   //const { disconnect } = useDisconnect()
 
   return (
-    <Router>
+    <Router
+        future={{
+    v7_startTransition: true,
+  }}>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
       </Routes>
