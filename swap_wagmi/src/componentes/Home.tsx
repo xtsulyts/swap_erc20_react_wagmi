@@ -21,11 +21,11 @@ const Home: React.FC = () => {
   const [isSwapping, setIsSwapping] = useState(false);
   const [swapDirection, setSwapDirection] = useState<'AtoB' | 'BtoA'>('AtoB');
 
-  // Hooks de lectura existentes (mantengo exactamente los mismos)
+  // Hooks de lectura 
   const {
     data: reserveA,
     isLoading: loadingReserveA,
-    error: errorReserveA
+    // error: errorReserveA
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -35,7 +35,7 @@ const Home: React.FC = () => {
   const {
     data: reserveB,
     isLoading: loadingReserveB,
-    error: errorReserveB
+    //error: errorReserveB
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
