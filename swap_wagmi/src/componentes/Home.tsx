@@ -1,10 +1,11 @@
 // Home.tsx
 import React, { useState, useEffect } from 'react';
 import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import simpleDexABI from "../contratos/simpleDexABI.json";
 import tokenAABI from '../contratos/erc20ABI/tokenAABI.json';
 import tokenBABI from '../contratos/erc20ABI/tokenBABI.json';
+import { getDefaultConfig } from '@rainbow-me/rainbowkit';
 
 // Direcciones de los contratos
 const SIMPLE_DEX_ADDRESS = '0x3D5B5a5328a0f29375b3cDcBE31B1aB5c2AB906A';
@@ -13,19 +14,23 @@ const TOKEN_B_ADDRESS = '0xBeaC73A7755BeED1337Ca95137EB8b9247f88542';
 
 const Home: React.FC = () => {
   const { isConnected, address } = useAccount();
-  const { writeContract } = useWriteContract();
+  const { data: hash, writeContract } = useWriteContract();
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash,
+  });
+
 
   // Estados para el swap
   const [amountIn, setAmountIn] = useState('');
   const [amountOut, setAmountOut] = useState('0.0');
   const [isSwapping, setIsSwapping] = useState(false);
   const [swapDirection, setSwapDirection] = useState<'AtoB' | 'BtoA'>('AtoB');
+  const [showSuccess, setShowSuccess] = useState(false);
 
   // Hooks de lectura 
   const {
     data: reserveA,
     isLoading: loadingReserveA,
-    // error: errorReserveA
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -35,7 +40,6 @@ const Home: React.FC = () => {
   const {
     data: reserveB,
     isLoading: loadingReserveB,
-    //error: errorReserveB
   } = useReadContract({
     address: SIMPLE_DEX_ADDRESS,
     abi: simpleDexABI,
@@ -88,7 +92,7 @@ const Home: React.FC = () => {
     args: [TOKEN_B_ADDRESS],
   });
 
-  // Calcular amountOut basado en el input (manteniendo la misma lógica)
+  // Calcular amountOut basado en el input
   useEffect(() => {
     if (!amountIn || !reserveA || !reserveB || reserveA === 0n || reserveB === 0n) {
       setAmountOut('0.0');
@@ -110,6 +114,20 @@ const Home: React.FC = () => {
       setAmountOut('0.0');
     }
   }, [amountIn, swapDirection, reserveA, reserveB]);
+
+  // Efecto para manejar la confirmación de la transacción
+  useEffect(() => {
+    if (isConfirmed) {
+      setShowSuccess(true);
+    setTimeout(() => setShowSuccess(false), 3000);
+      // Actualizar balances cuando la transacción se confirma
+      refetchBalanceA();
+      refetchBalanceB();
+      setIsSwapping(false);
+      setAmountIn('');
+      setAmountOut('0.0');
+    }
+  }, [isConfirmed, refetchBalanceA, refetchBalanceB]);
 
   // Función para ejecutar el swap
   const handleSwap = async () => {
@@ -135,22 +153,13 @@ const Home: React.FC = () => {
         });
       }
 
-      // Esperar y actualizar balances
-      setTimeout(() => {
-        refetchBalanceA();
-        refetchBalanceB();
-        setIsSwapping(false);
-        setAmountIn('');
-        setAmountOut('0.0');
-      }, 3000);
-
     } catch (error) {
       console.error('Error en swap:', error);
       setIsSwapping(false);
     }
   };
 
-  // Función para formatear balances (MANTENIENDO EXACTAMENTE LA MISMA)
+  // Función para formatear balances
   const formatBalance = (balance: bigint | undefined, decimals: number = 18) => {
     if (!balance) return '0.0';
 
@@ -162,7 +171,7 @@ const Home: React.FC = () => {
     return `${cleanWhole}.${fractionalPart}`;
   };
 
-  // Calcular tasa de cambio (MANTENIENDO EXACTAMENTE LA MISMA)
+  // Calcular tasa de cambio
   const calculateExchangeRate = () => {
     if (!reserveA || !reserveB || reserveA === 0n) return '0.0';
     return (Number(reserveB) / Number(reserveA)).toFixed(4);
@@ -186,22 +195,18 @@ const Home: React.FC = () => {
 
         {/* Swap Card */}
         <div className="bg-gray-800 rounded-xl p-6 shadow-lg">
-          {/* Información del Pool - MANTENIENDO EXACTAMENTE LA MISMA VISUALIZACIÓN */}
+          {/* Información del Pool */}
           {isConnected && (
             <div className="mb-6 p-4 bg-gray-700 rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Información del Pool</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span>Reserva TokenA:</span>
-                  <span>
-                    {loadingReserveA ? 'Cargando...' : reserveA?.toString()}
-                  </span>
+                  {loadingReserveA ? <span className="inline-block animate-pulse bg-gray-600 rounded w-20 h-4"></span> : reserveA?.toString()}
                 </div>
                 <div className="flex justify-between">
                   <span>Reserva TokenB:</span>
-                  <span>
-                    {loadingReserveB ? 'Cargando...' : reserveB?.toString()}
-                  </span>
+                  {loadingReserveB ? <span className="inline-block animate-pulse bg-gray-600 rounded w-20 h-4"></span> : reserveB?.toString()}
                 </div>
                 <div className="flex justify-between">
                   <span>Tasa de cambio:</span>
@@ -211,7 +216,7 @@ const Home: React.FC = () => {
             </div>
           )}
 
-          {/* Balances del Usuario - MANTENIENDO EXACTAMENTE LA MISMA VISUALIZACIÓN */}
+          {/* Balances del Usuario */}
           {isConnected && (
             <div className="mb-6 p-4 bg-gray-700 rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Tus Balances</h3>
@@ -219,20 +224,20 @@ const Home: React.FC = () => {
                 <div className="flex justify-between">
                   <span>TokenA:</span>
                   <span>
-                    {loadingBalanceA ? 'Cargando...' : formatBalance(balanceTokenA)}
+                    {loadingBalanceA ? <span className="inline-block animate-pulse bg-gray-600 rounded w-16 h-4"></span> : formatBalance(balanceTokenA)}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>TokenB:</span>
                   <span>
-                    {loadingBalanceB ? 'Cargando...' : formatBalance(balanceTokenB)}
+                    {loadingBalanceB ? <span className="inline-block animate-pulse bg-gray-600 rounded w-16 h-4"></span> : formatBalance(balanceTokenB)}
                   </span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* INTERFAZ DE SWAP - NUEVA SECCIÓN */}
+          {/* INTERFAZ DE SWAP */}
           {isConnected && (
             <div className="space-y-4 mb-6">
               {/* From Section */}
@@ -305,14 +310,30 @@ const Home: React.FC = () => {
               <button 
                 onClick={handleSwap}
                 disabled={!amountIn || isSwapping || Number(amountIn) <= 0}
-                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center"
               >
-                {isSwapping ? 'Procesando swap...' : 'Swap'}
+                {isSwapping ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {isConfirming ? 'Confirmando...' : 'Procesando swap...'}
+                  </>
+                ) : (
+                  'Swap'
+                )}
               </button>
+              {showSuccess && (
+  <div className="fixed top-4 right-4 bg-green-500 text-white p-4 rounded-lg shadow-lg">
+    ✅ Swap realizado con éxito!
+  </div>
+)}
+              
             </div>
           )}
 
-          {/* Sección de conexión - MANTENIENDO EXACTAMENTE LA MISMA */}
+          {/* Sección de conexión */}
           <div className="space-y-4">
             <ConnectButton />
 
@@ -327,7 +348,7 @@ const Home: React.FC = () => {
           </div>
         </div>
 
-        {/* Footer Info - MANTENIENDO EXACTAMENTE LA MISMA */}
+        {/* Footer Info */}
         <div className="text-center mt-6 text-gray-500 text-sm">
           <p>
             {isConnected
@@ -341,4 +362,4 @@ const Home: React.FC = () => {
   );
 };
 
-export default Home;  
+export default Home;
