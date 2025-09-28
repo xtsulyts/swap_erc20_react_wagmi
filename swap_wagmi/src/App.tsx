@@ -1,11 +1,9 @@
-//import { useAccount, useConnect, useDisconnect } from 'wagmi'
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import HomePage from "./pages/HomePages"
+import LiquidesPages from './pages/LiquidezPages'
 
 function App() {
-  //const account = useAccount()
-  //const { connectors, connect, status, error } = useConnect()
-  //const { disconnect } = useDisconnect()
 
   return (
     <Router
@@ -14,6 +12,7 @@ function App() {
   }}>
       <Routes>
         <Route path='/' element={<HomePage/>}/>
+        <Route path='/liquides' element={<LiquidesPages/>}/>
       </Routes>
     </Router>
   )
