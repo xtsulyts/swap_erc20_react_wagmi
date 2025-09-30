@@ -1,4 +1,4 @@
-import Liquidity from "../componentes/Liquides";
+import Liquidity from "../componentes/Liquidez";
 import { useAccount } from 'wagmi';
 
 const LiquidesPages = () => {

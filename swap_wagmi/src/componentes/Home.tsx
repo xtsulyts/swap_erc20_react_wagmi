@@ -55,28 +55,28 @@ const Home: React.FC = () => {
   });
 
   const {
-  data: allowanceTokenA,
-  isLoading: loadingAllowanceA,
-  refetch: refetchAllowanceA
-} = useReadContract({
-  address: TOKEN_A_ADDRESS,
-  abi: tokenAABI, // ABI del Token A
-  functionName: 'allowance',
-  args: [address, SIMPLE_DEX_ADDRESS], // [owner, spender]
-  query: { enabled: !!address }
-});
+    data: allowanceTokenA,
+    isLoading: loadingAllowanceA,
+    refetch: refetchAllowanceA
+  } = useReadContract({
+    address: TOKEN_A_ADDRESS,
+    abi: tokenAABI, // ABI del Token A
+    functionName: 'allowance',
+    args: [address, SIMPLE_DEX_ADDRESS], // [owner, spender]
+    query: { enabled: !!address }
+  });
 
   const {
-  data: allowanceTokenB,
-  isLoading: loadingAllowanceB,
-  refetch: refetchAllowanceB
-} = useReadContract({
-  address: TOKEN_A_ADDRESS,
-  abi: tokenBABI, // ABI del Token B
-  functionName: 'allowance',
-  args: [address, SIMPLE_DEX_ADDRESS], // [owner, spender]
-  query: { enabled: !!address }
-});
+    data: allowanceTokenB,
+    isLoading: loadingAllowanceB,
+    refetch: refetchAllowanceB
+  } = useReadContract({
+    address: TOKEN_B_ADDRESS,
+    abi: tokenBABI, // ABI del Token B
+    functionName: 'allowance',
+    args: [address, SIMPLE_DEX_ADDRESS], // [owner, spender]
+    query: { enabled: !!address }
+  });
 
   // Efecto para manejar la confirmación de la transacción
   useEffect(() => {
@@ -90,6 +90,7 @@ const Home: React.FC = () => {
       setAmountIn('');
       setAmountOut('0.0');
       refetchAllowanceA();
+      refetchAllowanceB();
     }
   }, [isConfirmed, refetchBalanceA, refetchBalanceB]);
 
@@ -157,9 +158,9 @@ const Home: React.FC = () => {
     }
   }, [isConfirmed, refetchBalanceA, refetchBalanceB,]); // ← Add refetchReserveA and refetchReserveB to dependencies
 
-  
+
   return (
-  
+
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-4">
       <div className="max-w-md mx-auto mt-20">
         {/* Header */}
@@ -229,19 +230,7 @@ const Home: React.FC = () => {
               </div>
             </div>
 
-{isConnected && (
-  <div className="mt-4 p-3 bg-yellow-900 rounded-lg">
-    <h4 className="text-sm font-semibold mb-2">DEBUG - Allowance</h4>
-    <div className="text-xs">
-      <div>Allowance TokenA: 
-        {loadingAllowanceA ? 'Cargando...' : formatBalance(allowanceTokenA as bigint)}
-      </div>
-      <div>Allowance TokenB: 
-        {loadingAllowanceB ? 'Cargando...' : formatBalance(allowanceTokenB as bigint)}
-      </div>
-    </div>
-  </div>
-)}
+
             {/* Swap Arrow */}
             <div className="flex justify-center my-2">
               <button
@@ -307,6 +296,19 @@ const Home: React.FC = () => {
 
           </div>
         )}
+        {isConnected && (
+          <div className="mt-4 p-3 bg-yellow-900 rounded-lg">
+            <h4 className="text-sm font-semibold mb-2">DEBUG - Allowance</h4>
+            <div className="text-xs">
+              <div>Allowance TokenA:
+                {loadingAllowanceA ? 'Cargando...' : formatBalance(allowanceTokenA as bigint)}
+              </div>
+              <div>Allowance TokenB:
+                {loadingAllowanceB ? 'Cargando...' : formatBalance(allowanceTokenB as bigint)}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Sección de conexión */}
         <div className="space-y-4">
@@ -323,6 +325,7 @@ const Home: React.FC = () => {
         </div>
       </div>
 
+
       {/* Footer Info */}
       <div className="text-center mt-6 text-gray-500 text-sm">
         <p>
@@ -333,7 +336,7 @@ const Home: React.FC = () => {
         </p>
       </div>
     </div>
-  
+
   );
 };
 
