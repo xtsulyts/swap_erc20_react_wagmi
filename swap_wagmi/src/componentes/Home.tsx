@@ -298,7 +298,7 @@ const Home: React.FC = () => {
         )}
         {isConnected && (
           <div className="mt-4 p-3 bg-yellow-900 rounded-lg">
-            <h4 className="text-sm font-semibold mb-2">Allowance</h4>
+            <h4 className="text-sm font-semibold mb-2"> Allowance</h4>
             <div className="text-xs">
               <div>Allowance TokenA:
                 {loadingAllowanceA ? 'Cargando...' : formatBalance(allowanceTokenA as bigint)}
