@@ -27,6 +27,8 @@ const Liquidity: React.FC<LiquidityProps> = ({
   const { data: hash, writeContract } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash });
 
+
+
   // Leer reservas del pool
   const { data: reserveA, refetch: refetchReserveA } = useReadContract({
     address: SIMPLE_DEX_ADDRESS as `0x${string}`,
@@ -57,16 +59,27 @@ const Liquidity: React.FC<LiquidityProps> = ({
     query: { enabled: !!address }
   });
 
-  // Calcular amountB automáticamente basado en amountA
-  useEffect(() => {
-    if (amountA && reserveA && reserveB && reserveA > 0n) {
-      const amountAWei = BigInt(Number(amountA) * 10 ** 18);
-      const calculatedB = (amountAWei * reserveB) / reserveA;
-      setAmountB((Number(calculatedB) / 10 ** 18).toFixed(6));
-    } else {
-      setAmountB('');
-    }
-  }, [amountA, reserveA, reserveB]);
+useEffect(() => {
+  // Verificación exhaustiva de tipos
+  if (!amountA || typeof reserveA !== 'bigint' || typeof reserveB !== 'bigint') {
+    setAmountB('');
+    return;
+  }
+
+  if (reserveA === 0n) {
+    setAmountB('');
+    return;
+  }
+
+  try {
+    const amountAWei = BigInt(Math.floor(Number(amountA) * 10 ** 18));
+    const calculatedB = (amountAWei * reserveB) / reserveA;
+    setAmountB((Number(calculatedB) / 10 ** 18).toFixed(6));
+  } catch (error) {
+    console.error('Error en cálculo:', error);
+    setAmountB('');
+  }
+}, [amountA, reserveA, reserveB]);
 
   // Manejar add liquidity
   const handleAddLiquidity = async () => {
