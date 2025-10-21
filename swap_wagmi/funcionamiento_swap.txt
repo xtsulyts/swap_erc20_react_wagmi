@@ -1,0 +1,52 @@
+FUNCIONAMIENTO DEL DEX - CONTRATO SimpleDEX
+
+TOKENS INVOLUCRADOS:
+- TokenA: ERC20 (dirección configurada en el constructor)
+- TokenB: ERC20 (dirección configurada en el constructor)
+
+MECANISMO PRINCIPAL:
+- Pool de liquidez basado en el modelo de producto constante (x * y = k)
+- Fórmula: (reserveA + ΔA) * (reserveB - ΔB) = reserveA * reserveB
+
+FUNCIONES PRINCIPALES:
+
+1. AGREGAR LIQUIDEZ (addLiquidity)
+   - Usuario provee cantidades de TokenA y TokenB
+   - Los tokens se transfieren al contrato DEX
+   - Las reservas se actualizan sumando las cantidades
+   - Evento: LiquidityAdded
+
+2. RETIRAR LIQUIDEZ (removeLiquidity)  
+   - Usuario retira cantidades específicas de TokenA y TokenB
+   - Las reservas se reducen en las cantidades retiradas
+   - Los tokens se transfieren al usuario
+   - Evento: LiquidityRemoved
+
+3. INTERCAMBIO TokenA por TokenB (swapAforB)
+   - Usuario envía TokenA y recibe TokenB
+   - Cálculo: amountBOut = reserveB - (reserveA * reserveB) / (reserveA + amountAIn)
+   - Las reservas se actualizan: reserveA ↑, reserveB ↓
+   - Evento: Swapped
+
+4. INTERCAMBIO TokenB por TokenA (swapBforA)
+   - Usuario envía TokenB y recibe TokenA  
+   - Cálculo: amountAOut = reserveA - (reserveA * reserveB) / (reserveB + amountBIn)
+   - Las reservas se actualizan: reserveA ↓, reserveB ↑
+   - Evento: Swapped
+
+5. CONSULTAR PRECIO (getPrice)
+   - Precio TokenA: (reserveB * 10^18) / reserveA
+   - Precio TokenB: (reserveA * 10^18) / reserveB
+   - Factor 10^18 para mantener precisión
+
+FLUJO DE INTERACCIÓN:
+1. Usuario aprueba al DEX para gastar sus tokens (approve)
+2. Usuario llama a funciones del DEX (addLiquidity, swap, etc.)
+3. El DEX maneja las transferencias internamente
+4. Las reservas se actualizan automáticamente
+
+CARACTERÍSTICAS:
+- No requiere tokens LP (liquidity provider)
+- Las reservas son globales (no por usuario)
+- Modelo simple sin comisiones explícitas
+- Los precios se determinan automáticamente por las reservas
