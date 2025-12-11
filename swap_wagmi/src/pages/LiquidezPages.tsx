@@ -2,7 +2,7 @@ import Liquidity from "../componentes/Liquidez";
 import { useAccount } from 'wagmi';
 
 const LiquidesPages = () => {
-    const { isConnected, address } = useAccount();
+    const { isConnected } = useAccount();
     
     // Define las mismas constantes que tienes en Home.tsx
     const SIMPLE_DEX_ADDRESS = '0x3D5B5a5328a0f29375b3cDcBE31B1aB5c2AB906A';
@@ -29,7 +29,6 @@ const LiquidesPages = () => {
                     TOKEN_A_ADDRESS={TOKEN_A_ADDRESS}
                     TOKEN_B_ADDRESS={TOKEN_B_ADDRESS}
                     isConnected={isConnected}
-                    address={address}
                     formatBalance={formatBalance}
                 />
             </div>

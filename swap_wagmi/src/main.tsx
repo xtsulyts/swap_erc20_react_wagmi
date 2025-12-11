@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { Buffer } from 'buffer'
+//import { Buffer } from 'buffer'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { WagmiProvider } from 'wagmi'
@@ -10,7 +10,7 @@ import '@rainbow-me/rainbowkit/styles.css';
 
 import './index.css'
 
-globalThis.Buffer = Buffer
+//globalThis.Buffer = Buffer
 
 const queryClient = new QueryClient()
 
