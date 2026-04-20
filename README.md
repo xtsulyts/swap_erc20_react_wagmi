@@ -27,6 +27,15 @@ A decentralized exchange (DEX) built with React, Wagmi, and Solidity. Deployed o
 ### Post-swap — updated reserves and history
 ![Post-swap](docs/post-swap.png)
 
+### Connected wallet info
+![Wallet info](docs/wallet-info.png)
+
+### Zerion — signing approve
+![Approve sign](docs/approve-sign.png)
+
+### Zerion — signing swap
+![Swap sign](docs/swap-sign.png)
+
 ---
 
 ## Features
