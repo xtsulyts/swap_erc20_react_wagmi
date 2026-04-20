@@ -15,17 +15,17 @@ A decentralized exchange (DEX) built with React, Wagmi, and Solidity. Deployed o
 
 ## Screenshots
 
-### Swap
+### Dashboard — connected wallet
 ![Swap](docs/swap.png)
 
-### Liquidity Management
-![Liquidity](docs/liquidity.png)
-
-### Send Tokens
-![Send](docs/send.png)
-
-### Wallet Connection
+### Wallet connection — MetaMask, Zerion, Rabby
 ![Connect](docs/connect.png)
+
+### Approve flow
+![Approve](docs/approve.png)
+
+### Post-swap — updated reserves and history
+![Post-swap](docs/post-swap.png)
 
 ---
 
