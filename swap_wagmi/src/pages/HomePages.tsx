@@ -7,7 +7,7 @@ import TxHistory from '../components/history/TxHistory';
 const SwapPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white">
-      <div className="max-w-7xl mx-auto px-6 pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-6 pt-28 sm:pt-20 pb-10">
         <div className="flex gap-6">
 
           {/* Left sidebar — precios + pool stats */}
